@@ -5,14 +5,25 @@
 #include <string.h>
 #include <vector>
 
+#ifndef MAX_KINOVA_DEVICE
+#define MAX_KINOVA_DEVICE 20
+#endif
+
+#ifndef CODE_VERSION_COUNT
+#define CODE_VERSION_COUNT 3
+#endif
+
+#ifndef API_VERSION_COUNT
+#define API_VERSION_COUNT 3
+#endif
 
 /* Internal state */
 
-static bool init = false;
+static bool Init = false;
 
 class EmulatedDevice {
 public:
-  static int maxDeviceId;
+  static int MaxDeviceID;
   KinovaDevice deviceInfo;
   QuickStatus status;
   ClientConfigurations clientConfig;
@@ -23,9 +34,11 @@ public:
   AngularPosition angularForce;
   CartesianPosition cartesianForce;
   AngularPosition angularCurrent;
+  AngularPosition lastAngularCmd;
+  CartesianPosition lastCartesianCmd;
   EmulatedDevice(const char *sn, int type) {
     strncpy(deviceInfo.SerialNumber, sn, SERIAL_LENGTH);
-    deviceInfo.DeviceID = maxDeviceId++;
+    deviceInfo.DeviceID = MaxDeviceID++;
 
     memset(&clientConfig, 0, sizeof(clientConfig));
     strncpy(clientConfig.Serial, sn, STRING_LENGTH);
@@ -58,37 +71,54 @@ public:
     memset(&angularForce, 0, sizeof(angularForce));
     memset(&cartesianForce, 0, sizeof(cartesianForce));
     memset(&angularCurrent, 0, sizeof(angularCurrent));
+    memset(&lastAngularCmd, 0, sizeof(lastAngularCmd));
+    memset(&lastCartesianCmd, 0, sizeof(lastCartesianCmd));
   }
 };
 
-int EmulatedDevice::maxDeviceId = 0;
+int EmulatedDevice::MaxDeviceID = 0;
   
 
-static std::vector<EmulatedDevice> devices;
+static std::vector<EmulatedDevice> Devices;
 
-static std::vector<EmulatedDevice>::iterator activeDevice;
+static std::vector<EmulatedDevice>::iterator ActiveDevice;
 
-static FILE *logfp = stderr;
+static FILE *LOGFP = stderr;
 
 #define LOG(msg) {\
-  if(init) \
-    fprintf(logfp, "KinovaAPI emu: %s %s (%s active)\n", __func__, msg, activeDevice->deviceInfo.SerialNumber); \
+  if(Init) \
+    fprintf(LOGFP, "KinovaAPI emu: %s %s (%s active)\n", __func__, msg, ActiveDevice->deviceInfo.SerialNumber); \
   else \
-    fprintf(logfp, "KinovaAPI emu: %s %s\n", __func__, msg); \
+    fprintf(LOGFP, "KinovaAPI emu: %s %s\n", __func__, msg); \
+}
+
+#define LOG_INT(msg, i) {\
+  fprintf(LOGFP, "KinovaAPI emu: %s %s %d (%s active)\n", __func__, msg, i, ActiveDevice->deviceInfo.SerialNumber); \
+}
+
+#define LOG_POS(msg, pos) {\
+  fprintf(LOGFP, "KinovaAPI emu: %s %s (px=%0.2f, py=%0.2f, pz=%0.2f, tx=%0.2f, ty=%0.2f, tz=%0.2f) (%s active)\n", __func__, msg, pos.X, pos.Y, pos.Z, pos.ThetaX, pos.ThetaY, pos.ThetaZ, ActiveDevice->deviceInfo.SerialNumber);\
+}
+
+#define LOG_ANGLES(msg, a) {\
+  fprintf(LOGFP, "KinovaAPI emu: %s %s (%0.2f, %0.2f, %0.2f, %0.2f, %0.2f, %0.2f) (%s active)\n", __func__, msg, a.Actuator1,  a.Actuator2,  a.Actuator3, a.Actuator4,  a.Actuator5,  a.Actuator6, ActiveDevice->deviceInfo.SerialNumber);\
 }
 
 /* External API */
 
+#define EMULATE_KINOVA_NOT_IMPLEMENTED  2002
+
 KINOVAAPIUSBCOMMANDLAYER_API int InitAPI() {
-  devices.push_back(EmulatedDevice("EM001", 3));
-  devices.push_back(EmulatedDevice("EM002", 3));
-  activeDevice = devices.begin();
-  init = true;
+  Devices.push_back(EmulatedDevice("EM001", 3));
+  Devices.push_back(EmulatedDevice("EM002", 3));
+  ActiveDevice = Devices.begin();
+  Init = true;
   LOG("ok");
 	return NO_ERROR_KINOVA;
 }
 
-KINOVAAPIUSBCOMMANDLAYER_API int GetAPIVersion(std::vector<int> &Response)
+// was a std::vector in previous API
+KINOVAAPIUSBCOMMANDLAYER_API int GetAPIVersionVector(std::vector<int> &Response)
 {
   Response.clear();
   Response.push_back(0);
@@ -97,25 +127,54 @@ KINOVAAPIUSBCOMMANDLAYER_API int GetAPIVersion(std::vector<int> &Response)
   return NO_ERROR_KINOVA;
 }
 
-KINOVAAPIUSBCOMMANDLAYER_API int GetDevices(std::vector<KinovaDevice> &_devices, int &result) {
-  if(!init) return ERROR_NOT_INITIALIZED;
-  std::vector<KinovaDevice> dv;
-  for(std::vector<EmulatedDevice>::const_iterator i = devices.begin(); i != devices.end(); ++i)
-  {
-    dv.push_back(i->deviceInfo);
-  }
-  _devices = dv;
-  result = NO_ERROR_KINOVA;
-  LOG("ok");
+KINOVAAPIUSBCOMMANDLAYER_API int GetAPIVersion(int Response[API_VERSION_COUNT])
+{
+  // todo provide accurate API number
+  memset(&Response, 0, API_VERSION_COUNT * sizeof(int));
   return NO_ERROR_KINOVA;
 }
 
 
+// was a std::vector in previous api
+KINOVAAPIUSBCOMMANDLAYER_API int GetDevicesVector(std::vector<KinovaDevice> &_Devices, int &result) {
+  if(!Init) return ERROR_NOT_INITIALIZED;
+  std::vector<KinovaDevice> dv;
+  for(std::vector<EmulatedDevice>::const_iterator i = Devices.begin(); i != Devices.end(); ++i)
+  {
+    dv.push_back(i->deviceInfo);
+  }
+  _Devices = dv;
+  result = _Devices.size();
+  LOG("ok");
+  return NO_ERROR_KINOVA;
+}
+
+KINOVAAPIUSBCOMMANDLAYER_API int GetDeviceCount(int &result) {
+  if(!Init) return ERROR_NOT_INITIALIZED;
+  result = Devices.size();
+  return NO_ERROR_KINOVA;
+}
+
+
+KINOVAAPIUSBCOMMANDLAYER_API int GetDevices(KinovaDevice devlist[MAX_KINOVA_DEVICE], int &result) {
+  if(!Init) return ERROR_NOT_INITIALIZED;
+  int d = 0;
+  //memset(&devlist, 0, MAX_KINOVA_DEVICE * sizeof(KinovaDevice));
+  for(std::vector<EmulatedDevice>::const_iterator i = Devices.begin(); i != Devices.end() && d < MAX_KINOVA_DEVICE; ++i)
+  {
+    devlist[d++] = i->deviceInfo;
+  }
+  result = NO_ERROR_KINOVA;
+  LOG("ok");
+  return d;
+}
+
+
 KINOVAAPIUSBCOMMANDLAYER_API int SetActiveDevice(KinovaDevice device) {
-  if(!init) return ERROR_NOT_INITIALIZED;
-  for(std::vector<EmulatedDevice>::iterator i = devices.begin(); i != devices.end(); ++i) {
+  if(!Init) return ERROR_NOT_INITIALIZED;
+  for(std::vector<EmulatedDevice>::iterator i = Devices.begin(); i != Devices.end(); ++i) {
   	if(strcmp(i->deviceInfo.SerialNumber, device.SerialNumber) == 0) {
-      activeDevice = i;
+      ActiveDevice = i;
       LOG("found requested device");
 	    return NO_ERROR_KINOVA;
 	  }
@@ -126,218 +185,276 @@ KINOVAAPIUSBCOMMANDLAYER_API int SetActiveDevice(KinovaDevice device) {
 
 
 KINOVAAPIUSBCOMMANDLAYER_API int CloseAPI(void) {
-  if(!init) return ERROR_NOT_INITIALIZED;
-  init = false;
-  devices.clear();
-  activeDevice = devices.begin();
+  if(!Init) return ERROR_NOT_INITIALIZED;
+  Init = false;
+  Devices.clear();
+  ActiveDevice = Devices.begin();
   LOG("ok");
   return NO_ERROR_KINOVA;
 }
 
-KINOVAAPIUSBCOMMANDLAYER_API int GetCodeVersion(std::vector<int> &Response) {
-  if(!init) return ERROR_NOT_INITIALIZED;
+// was a std::vector in previous api
+KINOVAAPIUSBCOMMANDLAYER_API int GetCodeVersionVector(std::vector<int> &Response) {
+  if(!Init) return ERROR_NOT_INITIALIZED;
+  LOG("");
+  return NO_ERROR_KINOVA;
+}
+
+KINOVAAPIUSBCOMMANDLAYER_API int GetCodeVersion(int Response[CODE_VERSION_COUNT]) {
+  if(!Init) return ERROR_NOT_INITIALIZED;
+  LOG("");
+  memset(&Response, 0, CODE_VERSION_COUNT * sizeof(int));
   return NO_ERROR_KINOVA;
 }
 
 
 KINOVAAPIUSBCOMMANDLAYER_API int GetCartesianPosition(CartesianPosition &Response) {
-  if(!init) return ERROR_NOT_INITIALIZED;
-  Response = activeDevice->cartesianPos;
-  //LOG("");
+  if(!Init) return ERROR_NOT_INITIALIZED;
+  Response = ActiveDevice->cartesianPos;
+  LOG("");
   return NO_ERROR_KINOVA;
 }
 
 KINOVAAPIUSBCOMMANDLAYER_API int GetAngularPosition(AngularPosition &Response) {
-  if(!init) return ERROR_NOT_INITIALIZED;
-  Response = activeDevice->angularPos;
-  //LOG("");
+  if(!Init) return ERROR_NOT_INITIALIZED;
+  Response = ActiveDevice->angularPos;
+  LOG("");
   return NO_ERROR_KINOVA;
 }
 
 KINOVAAPIUSBCOMMANDLAYER_API int GetAngularVelocity(AngularPosition &Response) {
-  if(!init) return ERROR_NOT_INITIALIZED;
-  Response = activeDevice->angularVel;
-  //LOG("");
+  if(!Init) return ERROR_NOT_INITIALIZED;
+  Response = ActiveDevice->angularVel;
+  LOG("");
   return NO_ERROR_KINOVA;
 }
 
 
 KINOVAAPIUSBCOMMANDLAYER_API int GetCartesianForce(CartesianPosition &Response) {
-  if(!init) return ERROR_NOT_INITIALIZED;
-  Response = activeDevice->cartesianForce;
-  //LOG("");
+  if(!Init) return ERROR_NOT_INITIALIZED;
+  Response = ActiveDevice->cartesianForce;
+  LOG("");
   return NO_ERROR_KINOVA;
 }
 
 KINOVAAPIUSBCOMMANDLAYER_API int GetAngularForce(AngularPosition &Response) {
-  if(!init) return ERROR_NOT_INITIALIZED;
-  Response = activeDevice->angularForce;
-  //LOG("");
+  if(!Init) return ERROR_NOT_INITIALIZED;
+  Response = ActiveDevice->angularForce;
+  LOG("");
   return NO_ERROR_KINOVA;
 }
 
 KINOVAAPIUSBCOMMANDLAYER_API int GetAngularCurrent(AngularPosition &Response) {
-  if(!init) return ERROR_NOT_INITIALIZED;
-  Response = activeDevice->angularCurrent;
-  //LOG("");
+  if(!Init) return ERROR_NOT_INITIALIZED;
+  Response = ActiveDevice->angularCurrent;
+  LOG("");
   return NO_ERROR_KINOVA;
 }
 
+KINOVAAPIUSBCOMMANDLAYER_API int GetAngularCommand(AngularPosition &Response) {
+  if(!Init) return ERROR_NOT_INITIALIZED;
+  Response = ActiveDevice->lastAngularCmd;
+  LOG_ANGLES("returning", Response.Actuators);
+  return NO_ERROR_KINOVA;
+}
 
 KINOVAAPIUSBCOMMANDLAYER_API int GetActualTrajectoryInfo(TrajectoryPoint &Response) {
-  if(!init) return ERROR_NOT_INITIALIZED;
+  if(!Init) return ERROR_NOT_INITIALIZED;
+  LOG("");
   return NO_ERROR_KINOVA;
 }
 
 
 KINOVAAPIUSBCOMMANDLAYER_API int GetGlobalTrajectoryInfo(TrajectoryFIFO &Response) {
-  if(!init) return ERROR_NOT_INITIALIZED;
+  if(!Init) return ERROR_NOT_INITIALIZED;
+  LOG("");
   return NO_ERROR_KINOVA;
 }
 
 
 KINOVAAPIUSBCOMMANDLAYER_API int GetSensorsInfo(SensorsInfo &Response) {
-  if(!init) return ERROR_NOT_INITIALIZED;
+  if(!Init) return ERROR_NOT_INITIALIZED;
+  LOG("");
   return NO_ERROR_KINOVA;
 }
 
 
 
 KINOVAAPIUSBCOMMANDLAYER_API int SetAngularControl() {
-  if(!init) return ERROR_NOT_INITIALIZED;
-  activeDevice->status.ControlActiveModule = CONTROL_MODULE_ANGULAR_POSITION;
+  if(!Init) return ERROR_NOT_INITIALIZED;
+  ActiveDevice->status.ControlActiveModule = CONTROL_MODULE_ANGULAR_POSITION;
   LOG("set control mode to ANGULAR_POSITION");
   return NO_ERROR_KINOVA;
 }
 
 
 KINOVAAPIUSBCOMMANDLAYER_API int SetCartesianControl() {
-  if(!init) return ERROR_NOT_INITIALIZED;
-  activeDevice->status.ControlActiveModule = CONTROL_MODULE_CARTESIAN_POSITION;
+  if(!Init) return ERROR_NOT_INITIALIZED;
+  ActiveDevice->status.ControlActiveModule = CONTROL_MODULE_CARTESIAN_POSITION;
   LOG("set control mode to CARTESIAN_POSITION");
   return NO_ERROR_KINOVA;
 }
 
 
 KINOVAAPIUSBCOMMANDLAYER_API int StartControlAPI() {
-  if(!init) return ERROR_NOT_INITIALIZED;
-  activeDevice->status.ControlEnableStatus = 0;
+  if(!Init) return ERROR_NOT_INITIALIZED;
+  ActiveDevice->status.ControlEnableStatus = 0;
   LOG("set control ON");
   return NO_ERROR_KINOVA;
 }
 
 
 KINOVAAPIUSBCOMMANDLAYER_API int StopControlAPI() {
-  if(!init) return ERROR_NOT_INITIALIZED;
-  activeDevice->status.ControlEnableStatus = 1;
+  if(!Init) return ERROR_NOT_INITIALIZED;
+  ActiveDevice->status.ControlEnableStatus = 1;
   LOG("set control OFF");
   return NO_ERROR_KINOVA;
 }
 
 
 KINOVAAPIUSBCOMMANDLAYER_API int SendAdvanceTrajectory(TrajectoryPoint trajectory) {
-  if(!init) return ERROR_NOT_INITIALIZED;
-  return NO_ERROR_KINOVA;
+  if(!Init) return ERROR_NOT_INITIALIZED;
+  // TODO log limits and other values in trajectory struct
+  switch(trajectory.Position.Type)
+  {
+    case CARTESIAN_POSITION:
+      // todo compute joint angles
+      LOG_POS("cartesian pos", trajectory.Position.CartesianPosition);
+      ActiveDevice->cartesianPos.Coordinates = trajectory.Position.CartesianPosition;
+      ActiveDevice->lastCartesianCmd = ActiveDevice->cartesianPos;
+      return NO_ERROR_KINOVA;
+    case ANGULAR_POSITION:
+      // todo compute cartesian position
+      LOG_ANGLES("angular position", trajectory.Position.Actuators);
+      ActiveDevice->angularPos.Actuators = trajectory.Position.Actuators;
+      ActiveDevice->lastAngularCmd = ActiveDevice->angularPos;
+      return NO_ERROR_KINOVA;
+    // todo the others
+    default:
+      LOG_INT("not yet implemented for position type", trajectory.Position.Type);
+  }
+  return EMULATE_KINOVA_NOT_IMPLEMENTED;
 }
 
 
 KINOVAAPIUSBCOMMANDLAYER_API int SendBasicTrajectory(TrajectoryPoint trajectory) {
-  if(!init) return ERROR_NOT_INITIALIZED;
+  if(!Init) return ERROR_NOT_INITIALIZED;
+  LOG("");
   return NO_ERROR_KINOVA;
 }
 
 
 KINOVAAPIUSBCOMMANDLAYER_API int GetClientConfigurations(ClientConfigurations &config) {
-  if(!init) return ERROR_NOT_INITIALIZED;
+  if(!Init) return ERROR_NOT_INITIALIZED;
+  LOG("");
+  config = ActiveDevice->clientConfig;
   return NO_ERROR_KINOVA;
 }
 
 
 KINOVAAPIUSBCOMMANDLAYER_API int SetClientConfigurations(ClientConfigurations config) {
-  if(!init) return ERROR_NOT_INITIALIZED;
+  if(!Init) return ERROR_NOT_INITIALIZED;
+  LOG("changing stored ClientConfiguration");
+  ActiveDevice->clientConfig = config;
   return NO_ERROR_KINOVA;
 }
 
 
 KINOVAAPIUSBCOMMANDLAYER_API int EraseAllTrajectories() {
-  if(!init) return ERROR_NOT_INITIALIZED;
+  if(!Init) return ERROR_NOT_INITIALIZED;
+  LOG("");
   return NO_ERROR_KINOVA;
 }
 
 
 KINOVAAPIUSBCOMMANDLAYER_API int GetPositionCurrentActuators(std::vector<float> &Response) {
-  if(!init) return ERROR_NOT_INITIALIZED;
+  if(!Init) return ERROR_NOT_INITIALIZED;
+  LOG("");
   return NO_ERROR_KINOVA;
 }
 
 
 KINOVAAPIUSBCOMMANDLAYER_API int SetActuatorPID(unsigned int address, float P, float I, float D) {
-  if(!init) return ERROR_NOT_INITIALIZED;
+  if(!Init) return ERROR_NOT_INITIALIZED;
+  LOG("");
   return NO_ERROR_KINOVA;
 }
 
 
 KINOVAAPIUSBCOMMANDLAYER_API int GetControlType(int &Response) {
-  if(!init) return ERROR_NOT_INITIALIZED;
+  if(!Init) return ERROR_NOT_INITIALIZED;
+  LOG("");
   return NO_ERROR_KINOVA;
 }
 
 
 KINOVAAPIUSBCOMMANDLAYER_API int StartForceControl() {
-  if(!init) return ERROR_NOT_INITIALIZED;
+  if(!Init) return ERROR_NOT_INITIALIZED;
+  LOG("");
   return NO_ERROR_KINOVA;
 }
 
 
 KINOVAAPIUSBCOMMANDLAYER_API int StopForceControl() {
-  if(!init) return ERROR_NOT_INITIALIZED;
+  LOG("");
+  if(!Init) return ERROR_NOT_INITIALIZED;
   return NO_ERROR_KINOVA;
 }
 
 
 
 KINOVAAPIUSBCOMMANDLAYER_API int GetGripperStatus(Gripper &Response) {
-  if(!init) return ERROR_NOT_INITIALIZED;
+  if(!Init) return ERROR_NOT_INITIALIZED;
+  LOG("");
   return NO_ERROR_KINOVA;
 }
 
 
 KINOVAAPIUSBCOMMANDLAYER_API int GetQuickStatus(QuickStatus &Response) {
-  if(!init) return ERROR_NOT_INITIALIZED;
+  if(!Init) return ERROR_NOT_INITIALIZED;
+  LOG("");
+  Response = ActiveDevice->status;
   return NO_ERROR_KINOVA;
 }
 
 
 KINOVAAPIUSBCOMMANDLAYER_API int GetGeneralInformations(GeneralInformations &Response) {
-  if(!init) return ERROR_NOT_INITIALIZED;
+  if(!Init) return ERROR_NOT_INITIALIZED;
+  LOG("");
+  Response = ActiveDevice->genInfo;
   return NO_ERROR_KINOVA;
 }
 
 
 KINOVAAPIUSBCOMMANDLAYER_API int SetCartesianForceMinMax(CartesianInfo min, CartesianInfo max) {
-  if(!init) return ERROR_NOT_INITIALIZED;
+  if(!Init) return ERROR_NOT_INITIALIZED;
+  LOG("");
   return NO_ERROR_KINOVA;
 }
 
 
 KINOVAAPIUSBCOMMANDLAYER_API int SetCartesianInertiaDamping(CartesianInfo inertia, CartesianInfo damping) {
-  if(!init) return ERROR_NOT_INITIALIZED;
+  if(!Init) return ERROR_NOT_INITIALIZED;
+  LOG("");
   return NO_ERROR_KINOVA;
 }
 
 KINOVAAPIUSBCOMMANDLAYER_API int MoveHome() {
-  if(!init) return ERROR_NOT_INITIALIZED;
+  if(!Init) return ERROR_NOT_INITIALIZED;
   LOG("");
   return NO_ERROR_KINOVA;
 }
 
 KINOVAAPIUSBCOMMANDLAYER_API int GetActuatorAcceleration(AngularAcceleration &Response) {
-  if(!init) return ERROR_NOT_INITIALIZED;
+  if(!Init) return ERROR_NOT_INITIALIZED;
+  LOG("");
   return NO_ERROR_KINOVA;
 }
 
 
 KINOVAAPIUSBCOMMANDLAYER_API int InitFingers() {
+  if(!Init) return ERROR_NOT_INITIALIZED;
+  LOG("");
   return NO_ERROR_KINOVA;
 }
 
