@@ -17,6 +17,16 @@
 #define API_VERSION_COUNT 3
 #endif
 
+#ifdef API_HEADERS_VER
+#if (API_HEADERS_VER < 50104)
+#warning "Using older function definitions with vector args"
+#define USE_VECTOR_ARGS 1
+#endif
+#endif
+
+//#define LOG_GET(msg) LOG(msg)
+#define LOG_GET(msg) {}
+
 /* Internal state */
 
 static bool Init = false;
@@ -31,6 +41,7 @@ public:
   AngularPosition angularPos;
   CartesianPosition cartesianPos;
   AngularPosition angularVel;
+  CartesianPosition cartesianVel;
   AngularPosition angularForce;
   CartesianPosition cartesianForce;
   AngularPosition angularCurrent;
@@ -68,6 +79,7 @@ public:
     memset(&angularPos, 0, sizeof(angularPos));
     memset(&cartesianPos, 0, sizeof(cartesianPos));
     memset(&angularVel, 0, sizeof(angularVel));
+    memset(&cartesianVel, 0, sizeof(cartesianVel));
     memset(&angularForce, 0, sizeof(angularForce));
     memset(&cartesianForce, 0, sizeof(cartesianForce));
     memset(&angularCurrent, 0, sizeof(angularCurrent));
@@ -87,21 +99,25 @@ static FILE *LOGFP = stderr;
 
 #define LOG(msg) {\
   if(Init) \
-    fprintf(LOGFP, "KinovaAPI emu: %s %s (%s active)\n", __func__, msg, ActiveDevice->deviceInfo.SerialNumber); \
+    fprintf(LOGFP, "KinovaAPI emu: %s %s (%s active)\n", __func__, (msg), ActiveDevice->deviceInfo.SerialNumber); \
   else \
-    fprintf(LOGFP, "KinovaAPI emu: %s %s\n", __func__, msg); \
+    fprintf(LOGFP, "KinovaAPI emu: %s %s\n", __func__, (msg)); \
 }
 
 #define LOG_INT(msg, i) {\
-  fprintf(LOGFP, "KinovaAPI emu: %s %s %d (%s active)\n", __func__, msg, i, ActiveDevice->deviceInfo.SerialNumber); \
+  fprintf(LOGFP, "KinovaAPI emu: %s %s %d (%s active)\n", __func__, (msg), (i), ActiveDevice->deviceInfo.SerialNumber); \
 }
 
 #define LOG_POS(msg, pos) {\
-  fprintf(LOGFP, "KinovaAPI emu: %s %s (px=%0.2f, py=%0.2f, pz=%0.2f, tx=%0.2f, ty=%0.2f, tz=%0.2f) (%s active)\n", __func__, msg, pos.X, pos.Y, pos.Z, pos.ThetaX, pos.ThetaY, pos.ThetaZ, ActiveDevice->deviceInfo.SerialNumber);\
+  fprintf(LOGFP, "KinovaAPI emu: %s %s (px=%0.2f, py=%0.2f, pz=%0.2f, tx=%0.2f, ty=%0.2f, tz=%0.2f) (%s active)\n", __func__, (msg), (pos).X, (pos).Y, (pos).Z, (pos).ThetaX, (pos).ThetaY, (pos).ThetaZ, ActiveDevice->deviceInfo.SerialNumber);\
 }
 
 #define LOG_ANGLES(msg, a) {\
-  fprintf(LOGFP, "KinovaAPI emu: %s %s (%0.2f, %0.2f, %0.2f, %0.2f, %0.2f, %0.2f) (%s active)\n", __func__, msg, a.Actuator1,  a.Actuator2,  a.Actuator3, a.Actuator4,  a.Actuator5,  a.Actuator6, ActiveDevice->deviceInfo.SerialNumber);\
+  fprintf(LOGFP, "KinovaAPI emu: %s %s (%0.2f, %0.2f, %0.2f, %0.2f, %0.2f, %0.2f) (%s active)\n", __func__, (msg), (a).Actuator1,  (a).Actuator2,  (a).Actuator3, (a).Actuator4,  (a).Actuator5,  (a).Actuator6, ActiveDevice->deviceInfo.SerialNumber);\
+}
+
+#define LOG_LIMITS(msg, l) {\
+  fprintf(LOGFP, "KinovaAPI emu: %s %s (speed1=%0.2f, speed2=%0.2f, speed3=%0.2f, force1=%0.2f, force2=%0.2f, force3=%0.2f, acc1=%0.2f, acc2=%0.2f, acc3=%0.2f) (%s active)\n", __func__, (msg), (l).speedParameter1, (l).speedParameter2, (l).speedParameter3, (l).forceParameter1, (l).forceParameter2, (l).forceParameter3, (l).accelerationParameter1, (l).accelerationParameter2, (l).accelerationParameter3, ActiveDevice->deviceInfo.SerialNumber);\
 }
 
 /* External API */
@@ -117,15 +133,19 @@ KINOVAAPIUSBCOMMANDLAYER_API int InitAPI() {
 	return NO_ERROR_KINOVA;
 }
 
-// was a std::vector in previous API
-KINOVAAPIUSBCOMMANDLAYER_API int GetAPIVersionVector(std::vector<int> &Response)
+#ifdef USE_VECTOR_ARGS
+
+KINOVAAPIUSBCOMMANDLAYER_API int GetAPIVersion(std::vector<int> &Response)
 {
+puts("emu getapi");
   Response.clear();
   Response.push_back(0);
   Response.push_back(0);
   Response.push_back(0);
   return NO_ERROR_KINOVA;
 }
+
+#else
 
 KINOVAAPIUSBCOMMANDLAYER_API int GetAPIVersion(int Response[API_VERSION_COUNT])
 {
@@ -134,26 +154,28 @@ KINOVAAPIUSBCOMMANDLAYER_API int GetAPIVersion(int Response[API_VERSION_COUNT])
   return NO_ERROR_KINOVA;
 }
 
-
-// was a std::vector in previous api
-KINOVAAPIUSBCOMMANDLAYER_API int GetDevicesVector(std::vector<KinovaDevice> &_Devices, int &result) {
-  if(!Init) return ERROR_NOT_INITIALIZED;
-  std::vector<KinovaDevice> dv;
-  for(std::vector<EmulatedDevice>::const_iterator i = Devices.begin(); i != Devices.end(); ++i)
-  {
-    dv.push_back(i->deviceInfo);
-  }
-  _Devices = dv;
-  result = _Devices.size();
-  LOG("ok");
-  return NO_ERROR_KINOVA;
-}
+#endif
 
 KINOVAAPIUSBCOMMANDLAYER_API int GetDeviceCount(int &result) {
   if(!Init) return ERROR_NOT_INITIALIZED;
   result = Devices.size();
   return NO_ERROR_KINOVA;
 }
+
+#ifdef USE_VECTOR_ARGS
+KINOVAAPIUSBCOMMANDLAYER_API int GetDevices(std::vector<KinovaDevice> &devlist, int &result) {
+  if(!Init) return ERROR_NOT_INITIALIZED;
+  std::vector<KinovaDevice> dv;
+  for(std::vector<EmulatedDevice>::const_iterator i = Devices.begin(); i != Devices.end(); ++i)
+  {
+    dv.push_back(i->deviceInfo);
+  }
+  devlist = dv;
+  result = NO_ERROR_KINOVA;
+  LOG("ok");
+  return devlist.size();
+}
+#else
 
 
 KINOVAAPIUSBCOMMANDLAYER_API int GetDevices(KinovaDevice devlist[MAX_KINOVA_DEVICE], int &result) {
@@ -168,6 +190,7 @@ KINOVAAPIUSBCOMMANDLAYER_API int GetDevices(KinovaDevice devlist[MAX_KINOVA_DEVI
   LOG("ok");
   return d;
 }
+#endif
 
 
 KINOVAAPIUSBCOMMANDLAYER_API int SetActiveDevice(KinovaDevice device) {
@@ -193,39 +216,39 @@ KINOVAAPIUSBCOMMANDLAYER_API int CloseAPI(void) {
   return NO_ERROR_KINOVA;
 }
 
-// was a std::vector in previous api
-KINOVAAPIUSBCOMMANDLAYER_API int GetCodeVersionVector(std::vector<int> &Response) {
+#ifdef USE_VECTOR_ARGS
+KINOVAAPIUSBCOMMANDLAYER_API int GetCodeVersion(std::vector<int> &Response) {
   if(!Init) return ERROR_NOT_INITIALIZED;
   LOG("");
   return NO_ERROR_KINOVA;
 }
-
+#else
 KINOVAAPIUSBCOMMANDLAYER_API int GetCodeVersion(int Response[CODE_VERSION_COUNT]) {
   if(!Init) return ERROR_NOT_INITIALIZED;
   LOG("");
   memset(&Response, 0, CODE_VERSION_COUNT * sizeof(int));
   return NO_ERROR_KINOVA;
 }
-
+#endif
 
 KINOVAAPIUSBCOMMANDLAYER_API int GetCartesianPosition(CartesianPosition &Response) {
   if(!Init) return ERROR_NOT_INITIALIZED;
   Response = ActiveDevice->cartesianPos;
-  LOG("");
+  LOG_GET("");
   return NO_ERROR_KINOVA;
 }
 
 KINOVAAPIUSBCOMMANDLAYER_API int GetAngularPosition(AngularPosition &Response) {
   if(!Init) return ERROR_NOT_INITIALIZED;
   Response = ActiveDevice->angularPos;
-  LOG("");
+  LOG_GET("");
   return NO_ERROR_KINOVA;
 }
 
 KINOVAAPIUSBCOMMANDLAYER_API int GetAngularVelocity(AngularPosition &Response) {
   if(!Init) return ERROR_NOT_INITIALIZED;
   Response = ActiveDevice->angularVel;
-  LOG("");
+  LOG_GET("");
   return NO_ERROR_KINOVA;
 }
 
@@ -233,21 +256,21 @@ KINOVAAPIUSBCOMMANDLAYER_API int GetAngularVelocity(AngularPosition &Response) {
 KINOVAAPIUSBCOMMANDLAYER_API int GetCartesianForce(CartesianPosition &Response) {
   if(!Init) return ERROR_NOT_INITIALIZED;
   Response = ActiveDevice->cartesianForce;
-  LOG("");
+  LOG_GET("");
   return NO_ERROR_KINOVA;
 }
 
 KINOVAAPIUSBCOMMANDLAYER_API int GetAngularForce(AngularPosition &Response) {
   if(!Init) return ERROR_NOT_INITIALIZED;
   Response = ActiveDevice->angularForce;
-  LOG("");
+  LOG_GET("");
   return NO_ERROR_KINOVA;
 }
 
 KINOVAAPIUSBCOMMANDLAYER_API int GetAngularCurrent(AngularPosition &Response) {
   if(!Init) return ERROR_NOT_INITIALIZED;
   Response = ActiveDevice->angularCurrent;
-  LOG("");
+  LOG_GET("");
   return NO_ERROR_KINOVA;
 }
 
@@ -311,35 +334,94 @@ KINOVAAPIUSBCOMMANDLAYER_API int StopControlAPI() {
   return NO_ERROR_KINOVA;
 }
 
-
-KINOVAAPIUSBCOMMANDLAYER_API int SendAdvanceTrajectory(TrajectoryPoint trajectory) {
-  if(!Init) return ERROR_NOT_INITIALIZED;
-  // TODO log limits and other values in trajectory struct
-  switch(trajectory.Position.Type)
-  {
-    case CARTESIAN_POSITION:
+void _setCartPos(const CartesianInfo &coords)
+{
       // todo compute joint angles
-      LOG_POS("cartesian pos", trajectory.Position.CartesianPosition);
-      ActiveDevice->cartesianPos.Coordinates = trajectory.Position.CartesianPosition;
-      ActiveDevice->lastCartesianCmd = ActiveDevice->cartesianPos;
-      return NO_ERROR_KINOVA;
-    case ANGULAR_POSITION:
+    ActiveDevice->cartesianPos.Coordinates = coords;
+    ActiveDevice->lastCartesianCmd = ActiveDevice->cartesianPos;
+}
+
+void _setAngPos(const AngularInfo &angles)
+{
       // todo compute cartesian position
-      LOG_ANGLES("angular position", trajectory.Position.Actuators);
-      ActiveDevice->angularPos.Actuators = trajectory.Position.Actuators;
+      ActiveDevice->angularPos.Actuators = angles;
       ActiveDevice->lastAngularCmd = ActiveDevice->angularPos;
-      return NO_ERROR_KINOVA;
-    // todo the others
-    default:
-      LOG_INT("not yet implemented for position type", trajectory.Position.Type);
-  }
-  return EMULATE_KINOVA_NOT_IMPLEMENTED;
+}
+
+void _setCartVel(const CartesianInfo &coords)
+{
+      // todo compute joint angles
+    ActiveDevice->cartesianVel.Coordinates = coords;
+    ActiveDevice->lastCartesianCmd = ActiveDevice->cartesianVel;
+}
+
+void _setAngVel(const AngularInfo &angles)
+{
+      // todo compute cartesian position
+      ActiveDevice->angularVel.Actuators = angles;
+      ActiveDevice->lastAngularCmd = ActiveDevice->angularVel;
 }
 
 
-KINOVAAPIUSBCOMMANDLAYER_API int SendBasicTrajectory(TrajectoryPoint trajectory) {
+KINOVAAPIUSBCOMMANDLAYER_API int SendAdvanceTrajectory(TrajectoryPoint traj) {
   if(!Init) return ERROR_NOT_INITIALIZED;
-  LOG("");
+  switch(traj.Position.Type)
+  {
+    case CARTESIAN_POSITION:
+      LOG_POS("cartesian pos", traj.Position.CartesianPosition);
+      _setCartPos(traj.Position.CartesianPosition);
+      break;
+    case ANGULAR_POSITION:
+      LOG_ANGLES("angular position", traj.Position.Actuators);
+      _setAngPos(traj.Position.Actuators);
+      break;
+    case CARTESIAN_VELOCITY:
+      LOG_POS("cartesian vel", traj.Position.CartesianPosition);
+      _setCartVel(traj.Position.CartesianPosition);
+      break;
+    case ANGULAR_VELOCITY:
+      LOG_ANGLES("angular vel", traj.Position.Actuators);
+      _setAngVel(traj.Position.Actuators);
+      break;
+    // todo the others
+    default:
+      LOG_INT("not yet implemented for position type", traj.Position.Type);
+      return EMULATE_KINOVA_NOT_IMPLEMENTED;
+  }
+  if(traj.LimitationsActive == 1) {
+    LOG_LIMITS("limits enabled: ", traj.Limitations);
+  } else {
+    LOG("limits NOT enabled");
+  }
+  return NO_ERROR_KINOVA;
+}
+
+
+KINOVAAPIUSBCOMMANDLAYER_API int SendBasicTrajectory(TrajectoryPoint traj) {
+  if(!Init) return ERROR_NOT_INITIALIZED;
+  switch(traj.Position.Type)
+  {
+    case CARTESIAN_POSITION:
+      LOG_POS("cartesian pos", traj.Position.CartesianPosition);
+      _setCartPos(traj.Position.CartesianPosition);
+      break;
+    case ANGULAR_POSITION:
+      LOG_ANGLES("angular position", traj.Position.Actuators);
+      _setAngPos(traj.Position.Actuators);
+      break;
+    case CARTESIAN_VELOCITY:
+      LOG_POS("cartesian vel", traj.Position.CartesianPosition);
+      _setCartVel(traj.Position.CartesianPosition);
+      break;
+    case ANGULAR_VELOCITY:
+      LOG_ANGLES("angular vel", traj.Position.Actuators);
+      _setAngVel(traj.Position.Actuators);
+      break;
+    // todo the others
+    default:
+      LOG_INT("not yet implemented for position type", traj.Position.Type);
+      return EMULATE_KINOVA_NOT_IMPLEMENTED;
+  }
   return NO_ERROR_KINOVA;
 }
 
