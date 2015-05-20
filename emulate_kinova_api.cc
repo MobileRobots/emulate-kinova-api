@@ -18,10 +18,14 @@
 #endif
 
 #ifdef API_HEADERS_VER
+
 #if (API_HEADERS_VER < 50104)
 #warning "Using older function definitions with vector args"
 #define USE_VECTOR_ARGS 1
+#else
+#define HAVE_GET_COMMAND_VELOCITY 1
 #endif
+
 #endif
 
 //#define LOG_GET(msg) LOG(msg)
@@ -206,6 +210,11 @@ KINOVAAPIUSBCOMMANDLAYER_API int SetActiveDevice(KinovaDevice device) {
   return ERROR_NO_DEVICE_FOUND;
 }
 
+KINOVAAPIUSBCOMMANDLAYER_API int GetActiveDevice(KinovaDevice& device) {
+  if(!Init) return ERROR_NOT_INITIALIZED;
+  return EMULATE_KINOVA_NOT_IMPLEMENTED;
+}
+  
 
 KINOVAAPIUSBCOMMANDLAYER_API int CloseAPI(void) {
   if(!Init) return ERROR_NOT_INITIALIZED;
@@ -449,12 +458,17 @@ KINOVAAPIUSBCOMMANDLAYER_API int EraseAllTrajectories() {
 }
 
 
+#ifdef USE_VECHTOR_ARGS
 KINOVAAPIUSBCOMMANDLAYER_API int GetPositionCurrentActuators(std::vector<float> &Response) {
   if(!Init) return ERROR_NOT_INITIALIZED;
-  LOG("");
-  return NO_ERROR_KINOVA;
+  return EMULATE_KINOVA_NOT_IMPLEMENTED;
 }
-
+#else
+KINOVAAPIUSBCOMMANDLAYER_API int GetPositionCurrentActuators(float Response[POSITION_CURRENT_COUNT]) { 
+  if(!Init) return ERROR_NOT_INITIALIZED;
+  return EMULATE_KINOVA_NOT_IMPLEMENTED;
+}
+#endif
 
 KINOVAAPIUSBCOMMANDLAYER_API int SetActuatorPID(unsigned int address, float P, float I, float D) {
   if(!Init) return ERROR_NOT_INITIALIZED;
@@ -541,3 +555,225 @@ KINOVAAPIUSBCOMMANDLAYER_API int InitFingers() {
 }
 
 
+KINOVAAPIUSBCOMMANDLAYER_API int SetControlMapping(ControlMappingCharts command) {
+  return EMULATE_KINOVA_NOT_IMPLEMENTED;
+}
+
+
+KINOVAAPIUSBCOMMANDLAYER_API int SetProtectionZone(ZoneList command) {
+  return EMULATE_KINOVA_NOT_IMPLEMENTED;
+}
+
+KINOVAAPIUSBCOMMANDLAYER_API int SetActuatorPIDFilter(int a, float p, float i, float d) {
+  return EMULATE_KINOVA_NOT_IMPLEMENTED;
+}
+
+KINOVAAPIUSBCOMMANDLAYER_API int GetForcesInfo(ForcesInfo &resp) {
+  return EMULATE_KINOVA_NOT_IMPLEMENTED;
+}
+
+KINOVAAPIUSBCOMMANDLAYER_API int ProgramFlash(const char *filename) 
+{
+  return EMULATE_KINOVA_NOT_IMPLEMENTED;
+}
+
+
+KINOVAAPIUSBCOMMANDLAYER_API int RefreshDevicesList(void)
+{
+  return EMULATE_KINOVA_NOT_IMPLEMENTED;
+}
+
+
+
+KINOVAAPIUSBCOMMANDLAYER_API int GetSingularityVector(SingularityVector &Response){
+	return EMULATE_KINOVA_NOT_IMPLEMENTED;
+}
+
+
+KINOVAAPIUSBCOMMANDLAYER_API int RestoreFactoryDefault(){
+	return EMULATE_KINOVA_NOT_IMPLEMENTED;
+}
+
+KINOVAAPIUSBCOMMANDLAYER_API int SendJoystickCommand(JoystickCommand joystickCommand){
+	return EMULATE_KINOVA_NOT_IMPLEMENTED;
+}
+
+
+
+KINOVAAPIUSBCOMMANDLAYER_API int GetCartesianCommand(CartesianPosition &Response){
+	return EMULATE_KINOVA_NOT_IMPLEMENTED;
+}
+
+KINOVAAPIUSBCOMMANDLAYER_API int GetAngularCurrentMotor(AngularPosition &Response){
+	return EMULATE_KINOVA_NOT_IMPLEMENTED;
+}
+
+
+
+KINOVAAPIUSBCOMMANDLAYER_API int StartCurrentLimitation(){
+	return EMULATE_KINOVA_NOT_IMPLEMENTED;
+}
+
+KINOVAAPIUSBCOMMANDLAYER_API int StopCurrentLimitation(){
+	return EMULATE_KINOVA_NOT_IMPLEMENTED;
+}
+
+KINOVAAPIUSBCOMMANDLAYER_API int GetSystemErrorCount(unsigned int &Response){
+	return EMULATE_KINOVA_NOT_IMPLEMENTED;
+}
+
+KINOVAAPIUSBCOMMANDLAYER_API int GetSystemError(unsigned int indexError, SystemError &Response){
+	return EMULATE_KINOVA_NOT_IMPLEMENTED;
+}
+
+KINOVAAPIUSBCOMMANDLAYER_API int ClearErrorLog(){
+	return EMULATE_KINOVA_NOT_IMPLEMENTED;
+}
+
+KINOVAAPIUSBCOMMANDLAYER_API int EraseAllProtectionZones(){
+	return EMULATE_KINOVA_NOT_IMPLEMENTED;
+}
+
+//Internal use only
+KINOVAAPIUSBCOMMANDLAYER_API int SetSerialNumber(char Command[STRING_LENGTH], char temp[STRING_LENGTH]){
+	return EMULATE_KINOVA_NOT_IMPLEMENTED;
+}
+
+KINOVAAPIUSBCOMMANDLAYER_API int GetControlMapping(ControlMappingCharts &Response){
+	return EMULATE_KINOVA_NOT_IMPLEMENTED;
+}
+
+KINOVAAPIUSBCOMMANDLAYER_API int GetProtectionZone(ZoneList &Response){
+	return EMULATE_KINOVA_NOT_IMPLEMENTED;
+}
+
+
+
+
+KINOVAAPIUSBCOMMANDLAYER_API int SetJointZero(int ActuatorAdress){
+	return EMULATE_KINOVA_NOT_IMPLEMENTED;
+}
+
+KINOVAAPIUSBCOMMANDLAYER_API int SetTorqueZero(int ActuatorAdress){
+	return EMULATE_KINOVA_NOT_IMPLEMENTED;
+}
+
+KINOVAAPIUSBCOMMANDLAYER_API int SetTorqueGain(int ActuatorAdress, int Gain){
+	return EMULATE_KINOVA_NOT_IMPLEMENTED;
+}
+
+KINOVAAPIUSBCOMMANDLAYER_API int SetActuatorAddress(int ActuatorAdress, int newAddress){
+	return EMULATE_KINOVA_NOT_IMPLEMENTED;
+}
+
+
+KINOVAAPIUSBCOMMANDLAYER_API int SetFrameType(int frameType){
+	return EMULATE_KINOVA_NOT_IMPLEMENTED;
+}
+
+
+KINOVAAPIUSBCOMMANDLAYER_API int SetAngularTorqueMinMax(AngularInfo min, AngularInfo max){
+	return EMULATE_KINOVA_NOT_IMPLEMENTED;
+}
+
+KINOVAAPIUSBCOMMANDLAYER_API int SetAngularInertiaDamping(AngularInfo inertia, AngularInfo damping){
+	return EMULATE_KINOVA_NOT_IMPLEMENTED;
+}
+
+//Internal use only
+KINOVAAPIUSBCOMMANDLAYER_API int SetDevValue(std::vector<float> command){
+	return EMULATE_KINOVA_NOT_IMPLEMENTED;
+}
+
+//Internal use only
+KINOVAAPIUSBCOMMANDLAYER_API int GetDevValue(std::vector<float> &Response){
+	return EMULATE_KINOVA_NOT_IMPLEMENTED;
+}
+
+#ifdef USE_VECTOR_ARGS
+
+KINOVAAPIUSBCOMMANDLAYER_API int SetSpasmFilterValues(std::vector<float> Response, int activationStatus)
+{
+	return EMULATE_KINOVA_NOT_IMPLEMENTED;
+}
+
+KINOVAAPIUSBCOMMANDLAYER_API int GetSpasmFilterValues(std::vector<float> &Response, int &activationStatus)
+{
+	return EMULATE_KINOVA_NOT_IMPLEMENTED;
+}
+
+#else 
+
+KINOVAAPIUSBCOMMANDLAYER_API int SetSpasmFilterValues(float Command[SPASM_FILTER_COUNT], int activationStatus)
+{
+	return EMULATE_KINOVA_NOT_IMPLEMENTED;
+}
+
+KINOVAAPIUSBCOMMANDLAYER_API int GetSpasmFilterValues(float Response[SPASM_FILTER_COUNT], int &activationStatus){
+	return EMULATE_KINOVA_NOT_IMPLEMENTED;
+}
+
+#endif
+
+KINOVAAPIUSBCOMMANDLAYER_API int GetAngularForceGravityFree(AngularPosition &Response){
+	return EMULATE_KINOVA_NOT_IMPLEMENTED;
+}
+
+
+
+#ifdef USE_VECTOR_ARGS
+
+KINOVAAPIUSBCOMMANDLAYER_API int GetPeripheralInventory(std::vector<PeripheralInfo> &){
+	return EMULATE_KINOVA_NOT_IMPLEMENTED;
+}
+
+#else
+
+KINOVAAPIUSBCOMMANDLAYER_API int GetPeripheralInventory(PeripheralInfo list[MAX_INVENTORY] ){
+	return EMULATE_KINOVA_NOT_IMPLEMENTED;
+}
+
+#endif
+
+KINOVAAPIUSBCOMMANDLAYER_API int SetModel(char Command[STRING_LENGTH], char temp[STRING_LENGTH]){
+	return EMULATE_KINOVA_NOT_IMPLEMENTED;
+}
+
+
+KINOVAAPIUSBCOMMANDLAYER_API int GetJoystickValue(JoystickCommand &joystickCommand){
+	return EMULATE_KINOVA_NOT_IMPLEMENTED;
+}
+
+KINOVAAPIUSBCOMMANDLAYER_API int SetRobotConfiguration(int ConfigID){
+	return EMULATE_KINOVA_NOT_IMPLEMENTED;
+}
+
+#ifdef HAVE_GET_COMMAND_VELOCITY
+KINOVAAPIUSBCOMMANDLAYER_API int GetCommandVelocity(float cartesianVelocity[CARTESIAN_SIZE], float angularVelocity[MAX_ACTUATORS]){
+	return EMULATE_KINOVA_NOT_IMPLEMENTED;
+}
+#endif
+
+KINOVAAPIUSBCOMMANDLAYER_API int GetEndEffectorOffset(unsigned int &status, float &x, float &y, float &z){
+	return EMULATE_KINOVA_NOT_IMPLEMENTED;
+}
+
+KINOVAAPIUSBCOMMANDLAYER_API int SetEndEffectorOffset(unsigned int status, float x, float y, float z){
+	return EMULATE_KINOVA_NOT_IMPLEMENTED;
+}
+
+KINOVAAPIUSBCOMMANDLAYER_API int ScanForNewDevice() {
+	return EMULATE_KINOVA_NOT_IMPLEMENTED;
+}
+
+KINOVAAPIUSBCOMMANDLAYER_API int InitCommunication() {
+	return EMULATE_KINOVA_NOT_IMPLEMENTED;
+}
+
+KINOVAAPIUSBCOMMANDLAYER_API int CloseCommunication() {
+	return EMULATE_KINOVA_NOT_IMPLEMENTED;
+}
+
+KINOVAAPIUSBCOMMANDLAYER_API Packet SendPacket(Packet &out, Packet &in, int &result) {
+	result = EMULATE_KINOVA_NOT_IMPLEMENTED;
+}
