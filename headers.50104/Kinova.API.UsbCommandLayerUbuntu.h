@@ -1,7 +1,11 @@
-#ifdef KINOVAAPIUSBCOMMANDLAYER_EXPORTS
-#define KINOVAAPIUSBCOMMANDLAYER_API __attribute__ ((visibility ("default")))
+#ifdef KINOVAAPI_NOEXPORT
+#define KINOVAAPIUSBCOMMANDLAYER_API
 #else
-#define KINOVAAPIUSBCOMMANDLAYER_API __attribute__ ((visibility ("default")))
+#ifdef KINOVAAPIUSBCOMMANDLAYER_EXPORTS
+#define KINOVAAPIUSBCOMMANDLAYER_API __attribute__((visibility("default")))
+#else
+#define KINOVAAPIUSBCOMMANDLAYER_API __attribute__((visibility("default")))
+#endif
 #endif
 
 /**
@@ -103,7 +107,7 @@ extern "C" KINOVAAPIUSBCOMMANDLAYER_API int GetDevices(KinovaDevice devices[MAX_
 
 extern "C" KINOVAAPIUSBCOMMANDLAYER_API int SetActiveDevice(KinovaDevice device);
 
-extern "C" KINOVAAPIUSBCOMMANDLAYER_API int RefresDevicesList(void);
+extern "C" KINOVAAPIUSBCOMMANDLAYER_API int RefreshDevicesList(void);
 
 extern "C" KINOVAAPIUSBCOMMANDLAYER_API int InitAPI(void);
 

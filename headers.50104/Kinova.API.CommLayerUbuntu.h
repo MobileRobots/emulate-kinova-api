@@ -8,11 +8,29 @@
 #ifndef KINOVA_DLL_COMMLAYERUBUNTU_H_
 #define KINOVA_DLL_COMMLAYERUBUNTU_H_
 
+
+#ifdef KINOVAAPI_NOEXPORT
+
+#define KINOVADLLCOMMLAYER_API
+
+#else
+
+#ifdef WIN32
+
 #ifdef KINOVADLLCOMMLAYER_EXPORTS
 #define KINOVADLLCOMMLAYER_API __declspec(dllexport)
 #else
 #define KINOVADLLCOMMLAYER_API __declspec(dllimport)
 #endif
+
+#else
+
+#define KINOVADLLCOMMLAYER_API  __attribute__ ((visibility ("default"))) 
+
+#endif
+
+#endif
+
 
 #include <vector>
 
@@ -123,20 +141,20 @@ struct KinovaDevice
 };
 
 //Functions available outside of this library.
-extern "C" __attribute__ ((visibility ("default"))) int InitCommunication(void);
+extern "C" KINOVADLLCOMMLAYER_API int InitCommunication(void);
 
-extern "C" __attribute__ ((visibility ("default"))) int CloseCommunication(void);
+extern "C" KINOVADLLCOMMLAYER_API int CloseCommunication(void);
 
-extern "C" __attribute__ ((visibility ("default"))) int GetDeviceCount(int &result);
+extern "C" KINOVADLLCOMMLAYER_API int GetDeviceCount(int &result);
 
-extern "C" __attribute__ ((visibility ("default"))) Packet SendPacket(Packet &packetOut, Packet &packetIn, int &result);
+extern "C" KINOVADLLCOMMLAYER_API Packet SendPacket(Packet &packetOut, Packet &packetIn, int &result);
 
-extern "C" __attribute__ ((visibility ("default"))) int ScanForNewDevice();
+extern "C" KINOVADLLCOMMLAYER_API int ScanForNewDevice();
 
-extern "C" __attribute__ ((visibility ("default"))) int GetDevices(KinovaDevice list[MAX_KINOVA_DEVICE], int &result);
+extern "C" KINOVADLLCOMMLAYER_API int GetDevices(KinovaDevice list[MAX_KINOVA_DEVICE], int &result);
 
-extern "C" __attribute__ ((visibility ("default"))) int SetActiveDevice(KinovaDevice device);
+extern "C" KINOVADLLCOMMLAYER_API int SetActiveDevice(KinovaDevice device);
 
-extern "C" __attribute__ ((visibility ("default"))) int GetActiveDevice(KinovaDevice &device);
+extern "C" KINOVADLLCOMMLAYER_API int GetActiveDevice(KinovaDevice &device);
 
 #endif /* KINOVA_DLL_COMMLAYERUBUNTU_H_ */
