@@ -107,7 +107,7 @@ extern "C" KINOVAAPIUSBCOMMANDLAYER_API int GetDevices(KinovaDevice devices[MAX_
 
 extern "C" KINOVAAPIUSBCOMMANDLAYER_API int SetActiveDevice(KinovaDevice device);
 
-extern "C" KINOVAAPIUSBCOMMANDLAYER_API int RefreshDevicesList(void);
+extern "C" KINOVAAPIUSBCOMMANDLAYER_API int RefresDevicesList(void); // Note mispelling
 
 extern "C" KINOVAAPIUSBCOMMANDLAYER_API int InitAPI(void);
 

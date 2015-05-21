@@ -482,7 +482,7 @@ KINOVAAPIUSBCOMMANDLAYER_API int EraseAllTrajectories() {
 }
 
 
-#ifdef USE_VECHTOR_ARGS
+#ifdef USE_VECTOR_ARGS
 KINOVAAPIUSBCOMMANDLAYER_API int GetPositionCurrentActuators(std::vector<float> &Response) {
   if(!Init) return ERROR_NOT_INITIALIZED;
   return EMULATE_KINOVA_NOT_IMPLEMENTED;
@@ -602,7 +602,7 @@ KINOVAAPIUSBCOMMANDLAYER_API int ProgramFlash(const char *filename)
 }
 
 
-KINOVAAPIUSBCOMMANDLAYER_API int RefreshDevicesList(void)
+KINOVAAPIUSBCOMMANDLAYER_API int RefresDevicesList(void) // sic
 {
   return EMULATE_KINOVA_NOT_IMPLEMENTED;
 }
