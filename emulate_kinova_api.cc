@@ -59,6 +59,9 @@
 
 static bool Init = false;
 
+static AngularPosition LeftHomePosition;
+static AngularPosition RightHomePosition;
+
 class EmulatedDevice {
 public:
   static int MaxDeviceID;
@@ -75,12 +78,13 @@ public:
   AngularPosition angularCurrent;
   AngularPosition lastAngularCmd;
   CartesianPosition lastCartesianCmd;
-  EmulatedDevice(const char *sn, int type) {
+  EmulatedDevice(const char *sn, int type, ArmLaterality lat = LEFTHAND) {
     strncpy(deviceInfo.SerialNumber, sn, SERIAL_LENGTH);
     deviceInfo.DeviceID = MaxDeviceID++;
 
     memset(&clientConfig, 0, sizeof(clientConfig));
     strncpy(clientConfig.Serial, sn, STRING_LENGTH);
+    clientConfig.Laterality = lat;
     switch(type) {
       case 0:
         strcpy(clientConfig.Model, "Emulated Jaco");
@@ -148,14 +152,19 @@ static FILE *LOGFP = stderr;
   fprintf(LOGFP, "KinovaAPI emu: %s %s (speed1=%0.2f, speed2=%0.2f, speed3=%0.2f, force1=%0.2f, force2=%0.2f, force3=%0.2f, acc1=%0.2f, acc2=%0.2f, acc3=%0.2f) (%s active)\n", __func__, (msg), (l).speedParameter1, (l).speedParameter2, (l).speedParameter3, (l).forceParameter1, (l).forceParameter2, (l).forceParameter3, (l).accelerationParameter1, (l).accelerationParameter2, (l).accelerationParameter3, ActiveDevice->deviceInfo.SerialNumber);\
 }
 
+
 /* External API */
 
 #define EMULATE_KINOVA_NOT_IMPLEMENTED  2002
 
+
+void _initHomePosition();
+
 KINOVAAPIUSBCOMMANDLAYER_API int InitAPI() {
-  Devices.push_back(EmulatedDevice("EM001", 3));
-  Devices.push_back(EmulatedDevice("EM002", 3));
+  Devices.push_back(EmulatedDevice("EM001", 3, LEFTHAND));
+  Devices.push_back(EmulatedDevice("EM002", 3, RIGHTHAND));
   ActiveDevice = Devices.begin();
+  _initHomePosition();
   Init = true;
   LOG("ok");
 	return NO_ERROR_KINOVA;
@@ -395,6 +404,14 @@ void _setAngVel(const AngularInfo &angles)
       ActiveDevice->lastAngularCmd = ActiveDevice->angularVel;
 }
 
+void _initHomePositions()
+{
+  memset(&LeftHomePosition, 0, sizeof(RightHomePosition));
+  memset(&RightHomePosition, 0, sizeof(LeftHomePosition));
+  LeftHomePosition.Actuators = {44, 200, 295, 125, 240, 285};
+  RightHomePosition.Actuators = {320, 200, 65, 175, 240, 285};
+  LeftHomePosition.Fingers = RightHomePosition.Fingers = {0, 0, 0};
+}
 
 KINOVAAPIUSBCOMMANDLAYER_API int SendAdvanceTrajectory(TrajectoryPoint traj) {
   if(!Init) return ERROR_NOT_INITIALIZED;
@@ -562,6 +579,10 @@ KINOVAAPIUSBCOMMANDLAYER_API int SetCartesianInertiaDamping(CartesianInfo inerti
 KINOVAAPIUSBCOMMANDLAYER_API int MoveHome() {
   if(!Init) return ERROR_NOT_INITIALIZED;
   LOG("");
+  if(ActiveDevice->clientConfig.Laterality == LEFTHAND)
+    _setAngPos(LeftHomePosition.Actuators);
+  else
+    _setAngPos(RightHomePosition.Actuators);
   return NO_ERROR_KINOVA;
 }
 
