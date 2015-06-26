@@ -152,6 +152,9 @@ static FILE *LOGFP = stderr;
   fprintf(LOGFP, "KinovaAPI emu: %s %s (speed1=%0.2f, speed2=%0.2f, speed3=%0.2f, force1=%0.2f, force2=%0.2f, force3=%0.2f, acc1=%0.2f, acc2=%0.2f, acc3=%0.2f) (%s active)\n", __func__, (msg), (l).speedParameter1, (l).speedParameter2, (l).speedParameter3, (l).forceParameter1, (l).forceParameter2, (l).forceParameter3, (l).accelerationParameter1, (l).accelerationParameter2, (l).accelerationParameter3, ActiveDevice->deviceInfo.SerialNumber);\
 }
 
+#define LOG_FINGERS(msg, f) {\
+  fprintf(LOGFP, "KinovaAPI emu: %s %s (%0.2f, %0.2f, %0.2f)\n", __func__, (msg), (f).Finger1, (f).Finger2, (f).Finger3); \
+}
 
 /* External API */
 
@@ -385,9 +388,15 @@ void _setCartPos(const CartesianInfo &coords)
 
 void _setAngPos(const AngularInfo &angles)
 {
-      // todo compute cartesian position
+      // todo compute cartesian position of end effector.
       ActiveDevice->angularPos.Actuators = angles;
       ActiveDevice->lastAngularCmd = ActiveDevice->angularPos;
+}
+
+void _setFingers(const FingersPosition &fingers)
+{
+  ActiveDevice->angularPos.Fingers = fingers;
+  ActiveDevice->cartesianPos.Fingers = fingers;
 }
 
 void _setCartVel(const CartesianInfo &coords)
@@ -438,6 +447,8 @@ KINOVAAPIUSBCOMMANDLAYER_API int SendAdvanceTrajectory(TrajectoryPoint traj) {
       LOG_INT("not yet implemented for position type", traj.Position.Type);
       return EMULATE_KINOVA_NOT_IMPLEMENTED;
   }
+  LOG_FINGERS("fingers", traj.Position.Fingers);
+  _setFingers(traj.Position.Fingers);
   if(traj.LimitationsActive == 1) {
     LOG_LIMITS("limits enabled: ", traj.Limitations);
   } else {
@@ -580,9 +591,15 @@ KINOVAAPIUSBCOMMANDLAYER_API int MoveHome() {
   if(!Init) return ERROR_NOT_INITIALIZED;
   LOG("");
   if(ActiveDevice->clientConfig.Laterality == LEFTHAND)
+  {
     _setAngPos(LeftHomePosition.Actuators);
+    _setFingers(LeftHomePosition.Fingers);
+  }
   else
+  {
     _setAngPos(RightHomePosition.Actuators);
+    _setFingers(LeftHomePosition.Fingers);
+  }
   return NO_ERROR_KINOVA;
 }
 
