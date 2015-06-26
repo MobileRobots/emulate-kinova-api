@@ -62,6 +62,16 @@ static bool Init = false;
 static AngularPosition LeftHomePosition;
 static AngularPosition RightHomePosition;
 
+void _initHomePositions()
+{
+  memset(&LeftHomePosition, 0, sizeof(RightHomePosition));
+  memset(&RightHomePosition, 0, sizeof(LeftHomePosition));
+  // XXX TODO set correct home position for left/right Jaco2 arms
+  LeftHomePosition.Actuators = {44, 140, 295, 175, 240, 285};
+  RightHomePosition.Actuators = {320, 220, 65, 175, 240, 285};
+  LeftHomePosition.Fingers = RightHomePosition.Fingers = {0, 0, 0};
+}
+
 class EmulatedDevice {
 public:
   static int MaxDeviceID;
@@ -161,13 +171,12 @@ static FILE *LOGFP = stderr;
 #define EMULATE_KINOVA_NOT_IMPLEMENTED  2002
 
 
-void _initHomePosition();
 
 KINOVAAPIUSBCOMMANDLAYER_API int InitAPI() {
   Devices.push_back(EmulatedDevice("EM001", 3, LEFTHAND));
   Devices.push_back(EmulatedDevice("EM002", 3, RIGHTHAND));
   ActiveDevice = Devices.begin();
-  _initHomePosition();
+  _initHomePositions();
   Init = true;
   LOG("ok");
 	return NO_ERROR_KINOVA;
@@ -411,15 +420,6 @@ void _setAngVel(const AngularInfo &angles)
       // todo compute cartesian position
       ActiveDevice->angularVel.Actuators = angles;
       ActiveDevice->lastAngularCmd = ActiveDevice->angularVel;
-}
-
-void _initHomePositions()
-{
-  memset(&LeftHomePosition, 0, sizeof(RightHomePosition));
-  memset(&RightHomePosition, 0, sizeof(LeftHomePosition));
-  LeftHomePosition.Actuators = {44, 200, 295, 125, 240, 285};
-  RightHomePosition.Actuators = {320, 200, 65, 175, 240, 285};
-  LeftHomePosition.Fingers = RightHomePosition.Fingers = {0, 0, 0};
 }
 
 KINOVAAPIUSBCOMMANDLAYER_API int SendAdvanceTrajectory(TrajectoryPoint traj) {
