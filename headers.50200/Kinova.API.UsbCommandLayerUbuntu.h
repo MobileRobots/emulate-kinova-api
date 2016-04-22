@@ -208,7 +208,9 @@ extern "C" KINOVAAPIUSBCOMMANDLAYER_API int SetJointZero(int ActuatorAdress);
 
 extern "C" KINOVAAPIUSBCOMMANDLAYER_API int SetTorqueZero(int ActuatorAdress);
 
-extern "C" KINOVAAPIUSBCOMMANDLAYER_API int SetTorqueGain(int ActuatorAdress, int Gain);
+// This might actually be (int, float) arguments in the 5.2.0 libs? Temporarily
+// removed by Reed 4/22/16
+// extern "C" KINOVAAPIUSBCOMMANDLAYER_API int SetTorqueGain(int ActuatorAdress, int Gain);
 
 extern "C" KINOVAAPIUSBCOMMANDLAYER_API int SetActuatorPIDFilter(int ActuatorAdress, float filterP, float filterI, float filterD);
 
