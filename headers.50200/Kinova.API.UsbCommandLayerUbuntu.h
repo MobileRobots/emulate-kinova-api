@@ -1,7 +1,11 @@
+#ifdef KINOVAAPI_NOEXPORT
+#define KINOVAAPIUSBCOMMANDLAYER_API
+#else
 #ifdef KINOVAAPIUSBCOMMANDLAYER_EXPORTS
 #define KINOVAAPIUSBCOMMANDLAYER_API __attribute__ ((visibility ("default")))
 #else
 #define KINOVAAPIUSBCOMMANDLAYER_API __attribute__ ((visibility ("default")))
+#endif
 #endif
 
 /**

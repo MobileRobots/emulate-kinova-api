@@ -7,13 +7,31 @@
 
 #ifndef KINOVA_DLL_COMMLAYERUBUNTU_H_
 #define KINOVA_DLL_COMMLAYERUBUNTU_H_
-/*
+
+
+#ifdef KINOVAAPI_NOEXPORT
+
+#define KINOVADLLCOMMLAYER_API
+
+#else
+
+#ifdef WIN32
+
 #ifdef KINOVADLLCOMMLAYER_EXPORTS
 #define KINOVADLLCOMMLAYER_API __declspec(dllexport)
 #else
 #define KINOVADLLCOMMLAYER_API __declspec(dllimport)
 #endif
-*/
+
+#else
+
+#define KINOVADLLCOMMLAYER_API  __attribute__ ((visibility ("default"))) 
+
+#endif
+
+#endif
+
+
 #include <vector>
 
 // ***** E R R O R   C O D E S ******
@@ -287,21 +305,21 @@ struct RS485_Message
 
 
 //N O R M A L   U S B   F U N C T I O N S
-extern "C" __attribute__ ((visibility ("default"))) int InitCommunication(void);
+extern "C" KINOVADLLCOMMLAYER_API int InitCommunication(void);
 
-extern "C" __attribute__ ((visibility ("default"))) int CloseCommunication(void);
+extern "C" KINOVADLLCOMMLAYER_API int CloseCommunication(void);
 
-extern "C" __attribute__ ((visibility ("default"))) int GetDeviceCount(int &result);
+extern "C" KINOVADLLCOMMLAYER_API int GetDeviceCount(int &result);
 
-extern "C" __attribute__ ((visibility ("default"))) Packet SendPacket(Packet &packetOut, Packet &packetIn, int &result);
+extern "C" KINOVADLLCOMMLAYER_API Packet SendPacket(Packet &packetOut, Packet &packetIn, int &result);
 
-extern "C" __attribute__ ((visibility ("default"))) int ScanForNewDevice();
+extern "C" KINOVADLLCOMMLAYER_API int ScanForNewDevice();
 
-extern "C" __attribute__ ((visibility ("default"))) int GetDevices(KinovaDevice list[MAX_KINOVA_DEVICE], int &result);
+extern "C" KINOVADLLCOMMLAYER_API int GetDevices(KinovaDevice list[MAX_KINOVA_DEVICE], int &result);
 
-extern "C" __attribute__ ((visibility ("default"))) int SetActiveDevice(KinovaDevice device);
+extern "C" KINOVADLLCOMMLAYER_API int SetActiveDevice(KinovaDevice device);
 
-extern "C" __attribute__ ((visibility ("default"))) int GetActiveDevice(KinovaDevice &device);
+extern "C" KINOVADLLCOMMLAYER_API int GetActiveDevice(KinovaDevice &device);
 
 
 
@@ -313,10 +331,10 @@ The data will be sent via the USB port and then transfered on the RS-485 bus. In
 and the OpenRS485_Write function, you need to call the OpenRS485_Activate function. Once the OpenRS485_Activate is called
 you cannot used the joystick anymore and the normal USB API(functions above) will not be accessible.
 */
-extern "C" __attribute__ ((visibility ("default"))) int RS485_Read(RS485_Message* PackagesIn, int QuantityWanted, int &ReceivedQtyIn);
+extern "C" KINOVADLLCOMMLAYER_API int RS485_Read(RS485_Message* PackagesIn, int QuantityWanted, int &ReceivedQtyIn);
 
-extern "C" __attribute__ ((visibility ("default"))) int RS485_Write(RS485_Message* PackagesOut, int QtyToSend, int &QtySent);
+extern "C" KINOVADLLCOMMLAYER_API int RS485_Write(RS485_Message* PackagesOut, int QtyToSend, int &QtySent);
 
-extern "C" __attribute__ ((visibility ("default"))) int RS485_Activate(void);
+extern "C" KINOVADLLCOMMLAYER_API int RS485_Activate(void);
 
 #endif
