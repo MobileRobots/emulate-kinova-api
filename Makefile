@@ -7,12 +7,12 @@ ifndef PYTHON_INCLUDE
 PYTHON_INCLUDE:=/usr/include/python2.7
 endif
 
-DEFAULT_API_HEADERS_VER:=52000
+DEFAULT_API_HEADERS_VER:=50200
 DEFAULT_HEADERS_DIR:=headers.$(DEFAULT_API_HEADERS_VER)
 
-CXXFLAGS=-fPIC -g -std=c++11
+CXXFLAGS=-fPIC -g -std=c++0x #-std=c++11
 
-all: emulate_kinova_50101.so emulate_kinova_50104.so libemulate_kinova_50104.so libemulate_kinova_50101.so emulate_kinova_50200.so libemulate_kinova_50200.so emulate_kinova_52000.so libemulate_kinova_52000.so
+all: emulate_kinova_50101.so emulate_kinova_50104.so libemulate_kinova_50104.so libemulate_kinova_50101.so emulate_kinova_50200.so libemulate_kinova_50200.so emulate_kinova_50200.so libemulate_kinova_50200.so
 
 lib%.so: %.so
 	ln -s $< $@
@@ -36,8 +36,8 @@ emulate_kinova_50101.so: emulate_kinova_api.cc
 emulate_kinova_50200.so: emulate_kinova_api.cc
 	$(CXX) $(CXXFLAGS) -shared -o $@ -DAPI_HEADERS_VER=50200 -Iheaders.50200 $<
 
-emulate_kinova_52000.so: emulate_kinova_api.cc
-	$(CXX) $(CXXFLAGS) -shared -o $@ -DAPI_HEADERS_VER=52000 -Iheaders.52000 $<
+emulate_kinova_50200.so: emulate_kinova_api.cc
+	$(CXX) $(CXXFLAGS) -shared -o $@ -DAPI_HEADERS_VER=50200 -Iheaders.50200 $<
 
 
 #50101
