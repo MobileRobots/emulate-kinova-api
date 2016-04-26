@@ -371,4 +371,5 @@ extern "C" KINOVAAPIUSBCOMMANDLAYER_API int GetTrajectoryTorqueMode(int&);
 
 extern "C" KINOVAAPIUSBCOMMANDLAYER_API int SetTorqueInactivityType(int);
 
-extern "C" KINOVAAPIUSBCOMMANDLAYER_API  int GetActuatorsPosition(float *positionList);
+//extern "C" KINOVAAPIUSBCOMMANDLAYER_API  int GetActuatorsPosition(float *positionList);
+
