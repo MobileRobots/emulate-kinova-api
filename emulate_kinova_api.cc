@@ -141,29 +141,29 @@ static FILE *LOGFP = stderr;
 
 #define LOG(msg) {\
   if(Init) \
-    fprintf(LOGFP, "KinovaAPI emu: %s %s (%s active)\n", __func__, (msg), ActiveDevice->deviceInfo.SerialNumber); \
+    fprintf(LOGFP, "[emulate_kinova_api] %s %s (%s active)\n", __func__, (msg), ActiveDevice->deviceInfo.SerialNumber); \
   else \
-    fprintf(LOGFP, "KinovaAPI emu: %s %s\n", __func__, (msg)); \
+    fprintf(LOGFP, "[emulate_kinova_api] %s %s\n", __func__, (msg)); \
 }
 
 #define LOG_INT(msg, i) {\
-  fprintf(LOGFP, "KinovaAPI emu: %s %s %d (%s active)\n", __func__, (msg), (i), ActiveDevice->deviceInfo.SerialNumber); \
+  fprintf(LOGFP, "[emulate_kinova_api] %s %s %d (%s active)\n", __func__, (msg), (i), ActiveDevice->deviceInfo.SerialNumber); \
 }
 
 #define LOG_POS(msg, pos) {\
-  fprintf(LOGFP, "KinovaAPI emu: %s %s (px=%0.2f, py=%0.2f, pz=%0.2f, tx=%0.2f, ty=%0.2f, tz=%0.2f) (%s active)\n", __func__, (msg), (pos).X, (pos).Y, (pos).Z, (pos).ThetaX, (pos).ThetaY, (pos).ThetaZ, ActiveDevice->deviceInfo.SerialNumber);\
+  fprintf(LOGFP, "[emulate_kinova_api] %s %s (px=%0.2f, py=%0.2f, pz=%0.2f, tx=%0.2f, ty=%0.2f, tz=%0.2f) (%s active)\n", __func__, (msg), (pos).X, (pos).Y, (pos).Z, (pos).ThetaX, (pos).ThetaY, (pos).ThetaZ, ActiveDevice->deviceInfo.SerialNumber);\
 }
 
 #define LOG_ANGLES(msg, a) {\
-  fprintf(LOGFP, "KinovaAPI emu: %s %s (%0.2f, %0.2f, %0.2f, %0.2f, %0.2f, %0.2f) (%s active)\n", __func__, (msg), (a).Actuator1,  (a).Actuator2,  (a).Actuator3, (a).Actuator4,  (a).Actuator5,  (a).Actuator6, ActiveDevice->deviceInfo.SerialNumber);\
+  fprintf(LOGFP, "[emulate_kinova_api] %s %s (%0.2f, %0.2f, %0.2f, %0.2f, %0.2f, %0.2f) (%s active)\n", __func__, (msg), (a).Actuator1,  (a).Actuator2,  (a).Actuator3, (a).Actuator4,  (a).Actuator5,  (a).Actuator6, ActiveDevice->deviceInfo.SerialNumber);\
 }
 
 #define LOG_LIMITS(msg, l) {\
-  fprintf(LOGFP, "KinovaAPI emu: %s %s (speed1=%0.2f, speed2=%0.2f, speed3=%0.2f, force1=%0.2f, force2=%0.2f, force3=%0.2f, acc1=%0.2f, acc2=%0.2f, acc3=%0.2f) (%s active)\n", __func__, (msg), (l).speedParameter1, (l).speedParameter2, (l).speedParameter3, (l).forceParameter1, (l).forceParameter2, (l).forceParameter3, (l).accelerationParameter1, (l).accelerationParameter2, (l).accelerationParameter3, ActiveDevice->deviceInfo.SerialNumber);\
+  fprintf(LOGFP, "[emulate_kinova_api] %s %s (speed1=%0.2f, speed2=%0.2f, speed3=%0.2f, force1=%0.2f, force2=%0.2f, force3=%0.2f, acc1=%0.2f, acc2=%0.2f, acc3=%0.2f) (%s active)\n", __func__, (msg), (l).speedParameter1, (l).speedParameter2, (l).speedParameter3, (l).forceParameter1, (l).forceParameter2, (l).forceParameter3, (l).accelerationParameter1, (l).accelerationParameter2, (l).accelerationParameter3, ActiveDevice->deviceInfo.SerialNumber);\
 }
 
 #define LOG_FINGERS(msg, f) {\
-  fprintf(LOGFP, "KinovaAPI emu: %s %s (%0.2f, %0.2f, %0.2f)\n", __func__, (msg), (f).Finger1, (f).Finger2, (f).Finger3); \
+  fprintf(LOGFP, "[emulate_kinova_api] %s %s (%0.2f, %0.2f, %0.2f)\n", __func__, (msg), (f).Finger1, (f).Finger2, (f).Finger3); \
 }
 
 /* External API */
