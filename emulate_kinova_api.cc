@@ -839,3 +839,254 @@ KINOVAAPIUSBCOMMANDLAYER_API int CloseCommunication() {
 KINOVAAPIUSBCOMMANDLAYER_API Packet SendPacket(Packet &out, Packet &in, int &result) {
 	result = EMULATE_KINOVA_NOT_IMPLEMENTED;
 }
+
+#if (API_HEADERS_VER >= 50200)
+#warning including new 5.2.0 functions
+
+ KINOVAAPIUSBCOMMANDLAYER_API int RunGravityZEstimationSequence(ROBOT_TYPE type, double OptimalzParam[OPTIMAL_Z_PARAM_SIZE]) 
+{
+	return EMULATE_KINOVA_NOT_IMPLEMENTED;
+}
+
+KINOVAAPIUSBCOMMANDLAYER_API int SetGravityType(GRAVITY_TYPE)
+{
+	return EMULATE_KINOVA_NOT_IMPLEMENTED;
+}
+int SetGravityVector(float gravityVector[GRAVITY_VECTOR_SIZE])
+{
+	return EMULATE_KINOVA_NOT_IMPLEMENTED;
+}
+
+KINOVAAPIUSBCOMMANDLAYER_API int SetGravityOptimalZParam(float Command[GRAVITY_PARAM_SIZE]) {
+	return EMULATE_KINOVA_NOT_IMPLEMENTED;
+}
+
+KINOVAAPIUSBCOMMANDLAYER_API int SetGravityManualInputParam(float Command[GRAVITY_PARAM_SIZE]) {
+	return EMULATE_KINOVA_NOT_IMPLEMENTED;
+}
+
+KINOVAAPIUSBCOMMANDLAYER_API int SetActuatorMaxVelocity(float Command[COMMAND_SIZE])
+{
+	return EMULATE_KINOVA_NOT_IMPLEMENTED;
+}
+
+
+KINOVAAPIUSBCOMMANDLAYER_API int SetSwitchThreshold(float Command[COMMAND_SIZE])
+{
+	return EMULATE_KINOVA_NOT_IMPLEMENTED;
+}
+
+
+KINOVAAPIUSBCOMMANDLAYER_API int SetPositionLimitDistance(float Command[COMMAND_SIZE])
+{
+	return EMULATE_KINOVA_NOT_IMPLEMENTED;
+}
+
+KINOVAAPIUSBCOMMANDLAYER_API int SetTorqueControlType(TORQUECONTROL_TYPE type)
+{
+	return EMULATE_KINOVA_NOT_IMPLEMENTED;
+}
+
+KINOVAAPIUSBCOMMANDLAYER_API int SetGravityPayload(float Command[GRAVITY_PAYLOAD_SIZE])
+{
+	return EMULATE_KINOVA_NOT_IMPLEMENTED;
+}
+
+
+KINOVAAPIUSBCOMMANDLAYER_API int SetTorqueFeedCurrent(float Command[COMMAND_SIZE])
+{
+	return EMULATE_KINOVA_NOT_IMPLEMENTED;
+}
+KINOVAAPIUSBCOMMANDLAYER_API int SetTorqueFeedVelocity(float Command[COMMAND_SIZE])
+{
+	return EMULATE_KINOVA_NOT_IMPLEMENTED;
+}
+
+
+KINOVAAPIUSBCOMMANDLAYER_API int SendAngularTorqueCommand(float Command[COMMAND_SIZE])
+{
+	return EMULATE_KINOVA_NOT_IMPLEMENTED;
+}
+KINOVAAPIUSBCOMMANDLAYER_API int SendCartesianForceCommand(float Command[COMMAND_SIZE])
+{
+	return EMULATE_KINOVA_NOT_IMPLEMENTED;
+}
+KINOVAAPIUSBCOMMANDLAYER_API int SetTorqueActuatorGain(float Command[COMMAND_SIZE])
+{
+	return EMULATE_KINOVA_NOT_IMPLEMENTED;
+}
+KINOVAAPIUSBCOMMANDLAYER_API int SetTorqueActuatorDamping(float Command[COMMAND_SIZE])
+{
+	return EMULATE_KINOVA_NOT_IMPLEMENTED;
+}
+
+KINOVAAPIUSBCOMMANDLAYER_API int SwitchTrajectoryTorque(GENERALCONTROL_TYPE type)
+{
+	return EMULATE_KINOVA_NOT_IMPLEMENTED;
+}
+
+KINOVAAPIUSBCOMMANDLAYER_API int SetTorqueCommandMax(float Command[COMMAND_SIZE])
+{
+	return EMULATE_KINOVA_NOT_IMPLEMENTED;
+}
+
+KINOVAAPIUSBCOMMANDLAYER_API int SetTorqueSafetyFactor(float factor)
+{
+	return EMULATE_KINOVA_NOT_IMPLEMENTED;
+}
+
+KINOVAAPIUSBCOMMANDLAYER_API int SetTorqueGainMax(float Command[COMMAND_SIZE])
+{
+	return EMULATE_KINOVA_NOT_IMPLEMENTED;
+}
+
+KINOVAAPIUSBCOMMANDLAYER_API int SetTorqueInactivityTimeMainController(int time) 
+{
+	return EMULATE_KINOVA_NOT_IMPLEMENTED;
+}
+
+//Internal use only
+KINOVAAPIUSBCOMMANDLAYER_API int SetTorqueDampingMax(float Command[COMMAND_SIZE])
+{
+	return EMULATE_KINOVA_NOT_IMPLEMENTED;
+}
+
+
+//Internal use only
+KINOVAAPIUSBCOMMANDLAYER_API int SetTorqueFeedVelocityUnderGain(float Command[COMMAND_SIZE])
+{
+	return EMULATE_KINOVA_NOT_IMPLEMENTED;
+}
+
+//Internal use only
+KINOVAAPIUSBCOMMANDLAYER_API int SetTorqueFeedCurrentVoltage(float Command[COMMAND_SIZE])
+{
+	return EMULATE_KINOVA_NOT_IMPLEMENTED;
+}
+
+//Internal use only
+KINOVAAPIUSBCOMMANDLAYER_API int SetTorqueStaticFrictionMax(float Command[COMMAND_SIZE])
+{
+	return EMULATE_KINOVA_NOT_IMPLEMENTED;
+}
+
+//Internal use only
+KINOVAAPIUSBCOMMANDLAYER_API int SetTorqueErrorResend(float Command[COMMAND_SIZE])
+{
+	return EMULATE_KINOVA_NOT_IMPLEMENTED;
+}
+
+KINOVAAPIUSBCOMMANDLAYER_API int SetTorqueInactivityTimeActuator(float command[COMMAND_SIZE])
+{
+	return EMULATE_KINOVA_NOT_IMPLEMENTED;
+}
+
+KINOVAAPIUSBCOMMANDLAYER_API int SetTorqueInactivityType(int)
+{
+	return EMULATE_KINOVA_NOT_IMPLEMENTED;
+}
+
+KINOVAAPIUSBCOMMANDLAYER_API int SetTorqueVibrationController(float activationStatus) {
+	return EMULATE_KINOVA_NOT_IMPLEMENTED;
+}
+KINOVAAPIUSBCOMMANDLAYER_API int SetTorqueRobotProtection(int protectionLevel)
+{
+	return EMULATE_KINOVA_NOT_IMPLEMENTED;
+}
+KINOVAAPIUSBCOMMANDLAYER_API int SetTorqueVelocityLimitFilter(float Command[COMMAND_SIZE])
+{
+	return EMULATE_KINOVA_NOT_IMPLEMENTED;
+}
+KINOVAAPIUSBCOMMANDLAYER_API int SetTorqueFeedFilter(float command[COMMAND_SIZE]) 
+{
+	return EMULATE_KINOVA_NOT_IMPLEMENTED;
+}
+
+KINOVAAPIUSBCOMMANDLAYER_API int SetTorqueStaticFriction(float Command[COMMAND_SIZE])
+{
+	return EMULATE_KINOVA_NOT_IMPLEMENTED;
+}
+
+KINOVAAPIUSBCOMMANDLAYER_API int SetTorqueErrorDeadband(float command[COMMAND_SIZE]) {
+	return EMULATE_KINOVA_NOT_IMPLEMENTED;
+}
+
+KINOVAAPIUSBCOMMANDLAYER_API int SetTorqueBrake(float Command[COMMAND_SIZE])
+{
+	return EMULATE_KINOVA_NOT_IMPLEMENTED;
+}
+
+KINOVAAPIUSBCOMMANDLAYER_API int SetTorqueRateLimiter(float command[COMMAND_SIZE]) {
+	return EMULATE_KINOVA_NOT_IMPLEMENTED;
+}
+
+KINOVAAPIUSBCOMMANDLAYER_API int SetTorquePositionLimitDampingGain(float Command[COMMAND_SIZE])
+{
+	return EMULATE_KINOVA_NOT_IMPLEMENTED;
+}
+
+KINOVAAPIUSBCOMMANDLAYER_API int SetTorquePositionLimitDampingMax(float Command[COMMAND_SIZE])
+{
+	return EMULATE_KINOVA_NOT_IMPLEMENTED;
+}
+
+KINOVAAPIUSBCOMMANDLAYER_API int SetTorquePositionLimitRepulsGain(float Command[COMMAND_SIZE])
+{
+	return EMULATE_KINOVA_NOT_IMPLEMENTED;
+}
+
+KINOVAAPIUSBCOMMANDLAYER_API int SetTorquePositionLimitRepulsMax(float command[COMMAND_SIZE]) {
+	return EMULATE_KINOVA_NOT_IMPLEMENTED;
+}
+
+KINOVAAPIUSBCOMMANDLAYER_API int SetTorqueFilterVelocity(float Command[COMMAND_SIZE])
+{
+	return EMULATE_KINOVA_NOT_IMPLEMENTED;
+}
+
+KINOVAAPIUSBCOMMANDLAYER_API int SetTorqueFilterMeasuredTorque(float Command[COMMAND_SIZE])
+{
+	return EMULATE_KINOVA_NOT_IMPLEMENTED;
+}
+
+KINOVAAPIUSBCOMMANDLAYER_API int SetTorqueFilterError(float command[COMMAND_SIZE]) 
+{
+	return EMULATE_KINOVA_NOT_IMPLEMENTED;
+}
+
+KINOVAAPIUSBCOMMANDLAYER_API int SetTorqueFilterControlEffort(float Command[COMMAND_SIZE])
+{
+	return EMULATE_KINOVA_NOT_IMPLEMENTED;
+}
+
+KINOVAAPIUSBCOMMANDLAYER_API int GetTrajectoryTorqueMode(int&) {
+	return EMULATE_KINOVA_NOT_IMPLEMENTED;
+}
+
+KINOVAAPIUSBCOMMANDLAYER_API int GetAngularTorqueCommand(float command[COMMAND_SIZE])
+{
+	return EMULATE_KINOVA_NOT_IMPLEMENTED;
+}
+
+KINOVAAPIUSBCOMMANDLAYER_API int GetAngularTorqueGravityEstimation(float Command[COMMAND_SIZE])
+{
+	return EMULATE_KINOVA_NOT_IMPLEMENTED;
+}
+
+
+KINOVADLLCOMMLAYER_API int RS485_Read(RS485_Message* PackagesIn, int QuantityWanted, int &ReceivedQtyIn)
+{
+	return EMULATE_KINOVA_NOT_IMPLEMENTED;
+}
+
+KINOVADLLCOMMLAYER_API int RS485_Write(RS485_Message* PackagesOut, int QtyToSend, int &QtySent)
+{
+	return EMULATE_KINOVA_NOT_IMPLEMENTED;
+}
+
+KINOVADLLCOMMLAYER_API int RS485_Activate() 
+{
+	return EMULATE_KINOVA_NOT_IMPLEMENTED;
+}
+
+#endif
